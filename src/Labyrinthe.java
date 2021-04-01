@@ -18,7 +18,7 @@ public class Labyrinthe {
     }
 
     public Noeud verifier_existence(Robot robot) {
-        // return entree.();
+        return entree.verifier_existence(robot);
     }
 
     public void resoudre(Robot robot) {

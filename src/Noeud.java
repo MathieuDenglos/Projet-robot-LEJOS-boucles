@@ -19,6 +19,27 @@ public class Noeud {
         this.couloirs = couloirs;
     }
 
+    public Noeud verifier_existence(Robot robot) {
+        if (this == null || this.get_couleur() == TypeNoeud.cul_de_sac)
+            return null;
+
+        if (this.est_proche(robot))
+            return this;
+        else {
+            for (int i = 0; i < couloirs.size(); i++) {
+                Noeud temp = couloirs.get(i).get_noeud().verifier_existence(robot);
+                if (temp != null)
+                    return temp;
+            }
+        }
+        return null;
+    }
+
+    public boolean est_proche(Robot robot) {
+        return ((robot.get_x() - this.get_x()) * (robot.get_x() - this.get_x())
+                + (robot.get_y() - this.get_y()) * (robot.get_y() - this.get_y()) < Robot.get_erreur_position());
+    }
+
     public int get_couleur() {
         return couleur.getColor();
     }

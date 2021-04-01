@@ -11,6 +11,10 @@ public class Couloir {
         return this.orientation == robot.get_orientation();
     }
 
+    public Noeud get_noeud() {
+        return this.noeud;
+    }
+
     /**
      * Fonction récursive permettant au robot de visiter le labyrinthe et y sort dés
      * que le trésor a été trouvé ou le labyrinthe entièrement visité
