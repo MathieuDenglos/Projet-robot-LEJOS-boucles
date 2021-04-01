@@ -5,6 +5,8 @@ import lejos.nxt.ColorSensor.Color;
 public class Noeud {
     private ArrayList<Couloir> couloirs = new ArrayList<>();
     private Color couleur;
+    private int x;
+    private int y;
 
     public Noeud(Color couleur, ArrayList<Couloir> couloirs) {
         // Vérifie que la couleur envoyée correspond bien à une couleur de noeud
@@ -23,6 +25,14 @@ public class Noeud {
 
     public ArrayList<Couloir> get_couloirs() {
         return couloirs;
+    }
+
+    public int get_x() {
+        return this.x;
+    }
+
+    public int get_y() {
+        return this.y;
     }
 
     public void afficherNoeud() {
