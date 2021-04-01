@@ -18,6 +18,9 @@ public class Robot {
     private final int distance_roue_capteur = 69; // distance entre le centre de rotation et le capteur
     private Color couleur_scannee;
     private int red_avg = 140; // Valeur de la consigne du suiveur de ligne
+    private int x = 0; // + NORD - SUD
+    private int y = 0; // + EST - OUEST
+    static final private int erreur_position = 2000;
 
     /**
      * Sert juste à faire les tests, sera enlevé à la version finale
@@ -48,7 +51,6 @@ public class Robot {
         // avance jusqu'a detecter du noir
         rotation_gauche(30);
         rotation_droite(30);
-        color = Color.WHITE;
         while (color != Color.BLACK) {
             color = capteur_couleur.getColor().getColor();
         }
@@ -176,38 +178,38 @@ public class Robot {
     public void afficher(int a) {
         // Affiche la couleur sur l'écran du robot
         switch (a) {
-            case Color.BLACK:
-                System.out.println("Noir");
-                break;
+        case Color.BLACK:
+            System.out.println("Noir");
+            break;
 
-            case Color.WHITE:
-                System.out.println("Blanc");
-                break;
+        case Color.WHITE:
+            System.out.println("Blanc");
+            break;
 
-            case Color.BLUE:
-                System.out.println("Bleu");
-                break;
+        case Color.BLUE:
+            System.out.println("Bleu");
+            break;
 
-            case Color.GREEN:
-                System.out.println("Vert");
-                break;
+        case Color.GREEN:
+            System.out.println("Vert");
+            break;
 
-            case Color.YELLOW:
-                System.out.println("Jaune");
-                break;
+        case Color.YELLOW:
+            System.out.println("Jaune");
+            break;
 
-            case Color.RED:
-                System.out.println("Rouge");
-                break;
+        case Color.RED:
+            System.out.println("Rouge");
+            break;
         }
     }
 
-    public void avancer() {
+    int avancer() {
 
         // initialise les accélérations et fait avancer le robot
         int acceleration = 1000;
         float ecart, speed = 150, P = -0.5f;
-        float distance_parcourue = 0;
+        int distance_parcourue = 0;
         moteur_gauche.resetTachoCount();
 
         moteur_gauche.setAcceleration(acceleration);
@@ -220,6 +222,7 @@ public class Robot {
 
         // continue d'avancer tant que le robot ne détecte pas de noeud
         while (couleur == TypeNoeud.ligne || couleur == TypeNoeud.sol) {
+
             // à chaque itération, fait une mesure et compare la moyenne des 3 mesures
             // précédentes pour limiter les risques de fausses mesures
             mesure = capteur_couleur.getColor();
@@ -228,7 +231,6 @@ public class Robot {
             couleur1 = mesure.getColor();
             couleur = Couleur_Moyenne(couleur1, couleur2, couleur3);
             afficher(couleur);
-            System.out.println("R=" + mesure.getRed() + " G=" + mesure.getGreen() + " B=" + mesure.getBlue());
 
             // Permet de réguler légèrement la direction de rotation (pour toujours se
             // situer entre la ligne noir et le sol blanc)
@@ -252,6 +254,25 @@ public class Robot {
 
         // stocke la couleur du noeud
         couleur_scannee = mesure;
+        // stocke la distance parcourue en millimètres
+        distance_parcourue = (int) ((int) moteur_gauche.getTachoCount() / (360 / (56.0 * 3.1415))); // 56.0 : diamètre
+                                                                                                    // des roues
+        switch (orientation) {
+        case NORD:
+            this.x = this.x + distance_parcourue;
+            break;
+        case EST:
+            this.y = this.y + distance_parcourue;
+            break;
+        case SUD:
+            this.x = this.x - distance_parcourue;
+            break;
+        case OUEST:
+            this.y = this.y - distance_parcourue;
+            break;
+
+        }
+        return distance_parcourue;
     }
 
     /**
@@ -410,6 +431,18 @@ public class Robot {
 
     public boolean get_tresor_trouve() {
         return this.tresor;
+    }
+
+    public int get_x() {
+        return this.x;
+    }
+
+    public int get_y() {
+        return this.y;
+    }
+
+    static public int get_erreur_position() {
+        return erreur_position;
     }
 
     public void set_tresor_trouve(boolean tresor_trouve) {
