@@ -17,7 +17,7 @@ public class Couloir {
      * 
      * @param robot Le robot envoyé dans le couloir
      */
-    public void visite_couloir(Robot robot) {
+    public void visite_couloir(Robot robot, Labyrinthe labyrinthe) {
         // oriente le robot et le fait avancer jusqu'au prochain noeud
         robot.avancer_au_noeud(this.orientation);
 
@@ -30,7 +30,7 @@ public class Couloir {
             // explore tous les embranchements et sous-embranchements du noeud
             for (Couloir couloir : noeud.get_couloirs()) {
                 System.out.println("parcours d'un chemin, " + couloir.orientation.toString());
-                couloir.visite_couloir(robot);
+                couloir.visite_couloir(robot, labyrinthe);
 
                 // Si le trésor a été trouvé plus loins dans le parcours, retourne sans vérifier
                 // les autres chemins
