@@ -1,15 +1,14 @@
 import java.util.ArrayList;
-
 import lejos.nxt.ColorSensor.Color;
+import lejos.robotics.pathfinding.Node;
 
-public class Noeud {
+public class Noeud extends Node {
     private ArrayList<Couloir> couloirs = new ArrayList<>();
     private Color couleur;
-    private int x;
-    private int y;
 
-    public Noeud(Color couleur, ArrayList<Couloir> couloirs) {
+    public Noeud(Color couleur, ArrayList<Couloir> couloirs, float x, float y) {
         // Vérifie que la couleur envoyée correspond bien à une couleur de noeud
+        super(x, y);
         if (couleur.getColor() != TypeNoeud.tresor && couleur.getColor() != TypeNoeud.embranchement
                 && couleur.getColor() != TypeNoeud.cul_de_sac) {
             System.out.println("ERREUR RENTREE DANS LE CONSTRUCTEUR DE NOEUD");
@@ -48,11 +47,11 @@ public class Noeud {
         return couloirs;
     }
 
-    public int get_x() {
+    public float get_x() {
         return this.x;
     }
 
-    public int get_y() {
+    public float get_y() {
         return this.y;
     }
 
