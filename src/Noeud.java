@@ -17,7 +17,7 @@ public class Noeud extends Node {
     }
 
     public void set_valeurs(int couleur, ArrayList<Noeud> noeuds, float x, float y) {
-        // Vérifie que la couleur envoyée correspond bien à une couleur de noeud
+        // Verifie que la couleur envoyee correspond bien a une couleur de noeud
         if (couleur != TypeNoeud.tresor && couleur != TypeNoeud.embranchement && couleur != TypeNoeud.cul_de_sac) {
             System.out.println("ERREUR RENTREE DANS LE CONSTRUCTEUR DE NOEUD");
         } else {
@@ -73,21 +73,21 @@ public class Noeud extends Node {
     }
 
     /**
-     * Fonction récursive permettant au robot de visiter le labyrinthe et y sort dés
-     * que le trésor a été trouvé ou le labyrinthe entièrement visité
+     * Fonction recursive permettant au robot de visiter le labyrinthe et y sort des
+     * que le tresor a ete trouve ou le labyrinthe entierement visite
      * 
-     * @param robot Le robot envoyé dans le couloir
+     * @param robot Le robot envoye dans le couloir
      */
 
     public void visite_noeud(Robot robot, Labyrinthe labyrinthe, Noeud noeud_precedent) {
         // oriente le robot et le fait avancer jusqu'au prochain noeud
         robot.avancer_au_noeud(this.orientation);
 
-        // récupère le noeud avec sa couleur et ses potentiels chemins
+        // recupere le noeud avec sa couleur et ses potentiels chemins
         robot.decouvrir(labyrinthe, noeud_precedent, this);
 
         // Si le noeud est un carrefour, analyse le carrefour pour de potentiel chemins
-        // à emprunter
+        // a emprunter
         if (this.get_couleur() == TypeNoeud.embranchement) {
             // explore tous les embranchements et sous-embranchements du noeud
             for (Noeud noeud : noeuds) {
@@ -96,23 +96,23 @@ public class Noeud extends Node {
                     noeud.visite_noeud(robot, labyrinthe, this);
                 }
 
-                // Si le trésor a été trouvé plus loins dans le parcours, retourne sans vérifier
+                // Si le tresor a ete trouve plus loins dans le parcours, retourne sans verifier
                 // les autres chemins
                 if (labyrinthe.get_noeud_tresor() != null) {
                     return;
                 }
             }
-            // Si aucun des chemins ne vont vers le trésor retourne au noeud précédent
+            // Si aucun des chemins ne vont vers le tresor retourne au noeud precedent
             robot.avancer_au_noeud(this.orientation.droite().droite());
         }
-        // Si le noeud contient le trésor, indique au robot que le trésor a été trouvé
+        // Si le noeud contient le tresor, indique au robot que le tresor a ete trouve
         // et retourne
         else if (this.get_couleur() == TypeNoeud.tresor) {
-            System.out.println("tresor récupéré, retour au départ");
+            System.out.println("tresor recupere, retour au depart");
             labyrinthe.set_noeud_tresor(this);
             return;
         }
-        // Si le noeud est un cul de sac ou qu'aucune des branches ne mène au trésor,
+        // Si le noeud est un cul de sac ou qu'aucune des branches ne mene au tresor,
         // fait demi tour
         else if (this.get_couleur() == TypeNoeud.cul_de_sac) {
             System.out.println("cul_de_sac : demi tour");

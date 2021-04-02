@@ -24,17 +24,17 @@ public class Labyrinthe {
         // calibration du robot
         robot.calibration();
 
-        // création du premier lieu avec un couloir dans le sens du robot
+        // creation du premier lieu avec un couloir dans le sens du robot
         ArrayList<Noeud> premier_noeud = new ArrayList<Noeud>();
         this.entree = new Noeud(robot.get_orientation());
         premier_noeud.add(new Noeud(robot.get_orientation()));
         this.entree.set_valeurs(TypeNoeud.debut, premier_noeud, 0, 0);
 
-        // appel de la fonction récursif qui va créer les noeuds
+        // appel de la fonction recursif qui va creer les noeuds
         premier_noeud.get(0).visite_noeud(robot, this, entree);
 
-        // Résolution du chemin si le trésor a été trouvé
-        // sinon le robot se situe déjà à l'entrée du labyrinthe
+        // Resolution du chemin si le tresor a ete trouve
+        // sinon le robot se situe deja a l'entree du labyrinthe
         if (tresor != null) {
             AstarSearchAlgorithm astar = new AstarSearchAlgorithm();
             Path path = astar.findPath(tresor, entree);
@@ -42,7 +42,7 @@ public class Labyrinthe {
             for (int i = 1; i < path.size(); i++) {
                 robot.avancer_au_noeud(
                         retour.trouver_orientation(path.get(i - 1).x, path.get(i - 1).y, path.get(i).x, path.get(i).y));
-                // Potentielle célébration
+                // Potentielle celebration
             }
         }
     }
