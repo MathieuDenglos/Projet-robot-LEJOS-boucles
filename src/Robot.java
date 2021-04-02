@@ -9,7 +9,6 @@ import lejos.nxt.Button;
 public class Robot {
 
     // Donnés nécessaire au robot
-    private boolean tresor;
     private Orientation orientation = Orientation.NORD;
     private final ColorSensor capteur_couleur = new ColorSensor(SensorPort.S3);
     private NXTRegulatedMotor moteur_gauche = Motor.B;
@@ -26,10 +25,7 @@ public class Robot {
      * Sert juste à faire les tests, sera enlevé à la version finale
      */
     public void test() {
-        calibration();
-        Button.waitForAnyPress();
-        avancer_au_noeud(Orientation.NORD);
-        scan();
+
         Button.waitForAnyPress();
     }
 
@@ -65,7 +61,7 @@ public class Robot {
 
         // Fait la moyenne du blanc et du noir pour definir la consigne du suiveur de
         // ligne
-        red_avg = (white + black) / 2;
+        red_avg = ((white + black) / 2) - 17;
         System.out.println(red_avg);
         Button.waitForAnyPress();
     }
@@ -89,7 +85,7 @@ public class Robot {
         int angle = orientation.difference(direction) * -90;
 
         // ajoute un décalage afin de se trouver à gauche de la ligne
-        angle += 20;
+        angle -= 11;
         tourner(angle);
         orientation = direction;
     }
@@ -99,7 +95,7 @@ public class Robot {
         // définit la rotation que chaque moteur doit réaliser ainsi que son écart
         int consigne_gauche = (int) (angle * coefficient_rotation);
         int consigne_droite = -((int) (angle * coefficient_rotation));
-        float P = -3;
+        float P = -2;
         moteur_gauche.resetTachoCount();
         moteur_droite.resetTachoCount();
         int ecart_gauche = moteur_gauche.getTachoCount() - consigne_gauche;
@@ -155,7 +151,7 @@ public class Robot {
 
         // initialise les accélérations et fait avancer le robot
         int acceleration = 1000;
-        float ecart, speed = 150, P = -0.5f;
+        float ecart, speed = 205, P = -0.9f;
         int distance_parcourue = 0;
         moteur_gauche.resetTachoCount();
 
@@ -238,9 +234,27 @@ public class Robot {
         return TypeNoeud.ligne;
     }
 
-    public Noeud scan() {
+    public void decouvrir(Labyrinthe labyrinthe, Noeud noeud_precedent, Noeud noeud_actuel) {
+        ArrayList<Noeud> temp = new ArrayList<Noeud>();
+        Noeud verif = null;
+        if (couleur_scannee.getColor() == TypeNoeud.embranchement) {
+            verif = labyrinthe.verifier_existence(this);
+        }
+        if (verif == null) {
+            this.scan(noeud_actuel);
+            noeud_precedent.addNeighbor(noeud_actuel);
+            noeud_actuel.addNeighbor(noeud_precedent);
+        } else {
+            noeud_precedent.addNeighbor(verif);
+            noeud_actuel.addNeighbor(noeud_precedent);
+            noeud_actuel.set_valeurs(TypeNoeud.cul_de_sac, temp, (float) this.get_x(), (float) this.get_y());
+            labyrinthe.ajout_noeud_commun(verif, noeud_actuel.get_orientation().droite().droite());
+        }
+    }
 
-        ArrayList<Couloir> couloirs = new ArrayList<Couloir>();
+    public void scan(Noeud noeud_actuel) {
+
+        ArrayList<Noeud> noeuds = new ArrayList<Noeud>();
         if (couleur_scannee.getColor() == TypeNoeud.embranchement) {
             boolean a = false, b = false, c = false;
 
@@ -248,7 +262,7 @@ public class Robot {
             int consigne_gauche = (int) (360 * coefficient_rotation);
             int consigne_droite = -((int) (360 * coefficient_rotation));
             int P = -3;
-            int vmax = 100;
+            int vmax = 135;
             moteur_gauche.resetTachoCount();
             moteur_droite.resetTachoCount();
             int ecart_gauche = moteur_gauche.getTachoCount() - consigne_gauche;
@@ -258,6 +272,10 @@ public class Robot {
             int intervalle = consigne_gauche / 8;
 
             // commence à tourner sur lui-même selon la consigne
+            rotation_gauche(limite_vitesse(P * ecart_gauche, vmax));
+            rotation_droite(limite_vitesse(P * ecart_droite, vmax));
+            moteur_gauche.stop();
+            moteur_droite.stop();
             rotation_gauche(limite_vitesse(P * ecart_gauche, vmax));
             rotation_droite(limite_vitesse(P * ecart_droite, vmax));
 
@@ -307,21 +325,22 @@ public class Robot {
 
             // rajoute les couloirs dans le tableau dans un ordre optimisé
             if (a) {
-                couloirs.add(new Couloir(orientation));
+
+                noeuds.add(new Noeud(orientation));
             }
             if (b) {
-                couloirs.add(new Couloir(orientation.droite()));
+                noeuds.add(new Noeud(orientation.droite()));
             }
             if (c) {
-                couloirs.add(new Couloir(orientation.gauche()));
+                noeuds.add(new Noeud(orientation.gauche()));
             }
         }
 
         // affiche la couleur du noeud et le nombre de couloirs qui en sortent
         System.out.println("La couleur du noeud est : ");
         afficher(couleur_scannee.getColor());
-        System.out.println("Le nombre de chemin est :" + couloirs.size());
-        return new Noeud(couleur_scannee, couloirs);
+        System.out.println("Le nombre de chemin est : " + noeuds.size());
+        noeud_actuel.set_valeurs(couleur_scannee.getColor(), noeuds, x, y);
     }
 
     /**
@@ -376,10 +395,6 @@ public class Robot {
         return this.orientation;
     }
 
-    public boolean get_tresor_trouve() {
-        return this.tresor;
-    }
-
     public int get_x() {
         return this.x;
     }
@@ -392,7 +407,4 @@ public class Robot {
         return erreur_position;
     }
 
-    public void set_tresor_trouve(boolean tresor_trouve) {
-        this.tresor = tresor_trouve;
-    }
 }

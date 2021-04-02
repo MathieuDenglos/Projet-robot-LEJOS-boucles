@@ -33,4 +33,15 @@ public enum Orientation {
         else
             return temp;
     }
+
+    public Orientation trouver_orientation(float x_A, float y_A, float x_B, float y_B) {
+        if (x_A - x_B > 0 && x_A - x_B > y_A - y_B)
+            return Orientation.SUD;
+        else if (x_A - x_B < 0 && x_A - x_B < y_A - y_B)
+            return Orientation.NORD;
+        else if (y_A - y_B > 0 && x_A - x_B < y_A - y_B)
+            return Orientation.OUEST;
+        else
+            return Orientation.EST;
+    }
 };
