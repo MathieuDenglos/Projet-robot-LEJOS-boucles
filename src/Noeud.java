@@ -2,17 +2,17 @@ import java.util.ArrayList;
 import lejos.robotics.pathfinding.Node;
 
 public class Noeud extends Node {
-    private Orientation orientation; // Orientation du noeud précédent à ce noeud
-    private ArrayList<Noeud> noeuds = new ArrayList<Noeud>(); // List des noeuds reliés
+    private Orientation orientation; // Orientation du noeud precedent a ce noeud
+    private ArrayList<Noeud> noeuds = new ArrayList<Noeud>(); // List des noeuds relies
     private int couleur; // Couleur du noeud (voir class TypeNoeud)
 
     /**
      * Constructeur de la classe noeud
      * <p>
-     * Tous les autres raguments sont à définir ultèrierement dans set_valeurs ou
+     * Tous les autres raguments sont a definir ulterierement dans set_valeurs ou
      * ajouter_noeud
      * 
-     * @param orientation Orientation pour aller du noeud précédent à ce noeud
+     * @param orientation Orientation pour aller du noeud precedent a ce noeud
      */
     public Noeud(Orientation orientation) {
         super(0, 0);
@@ -20,14 +20,14 @@ public class Noeud extends Node {
     }
 
     /**
-     * Permet de définir les différentes valeurs du noeud
+     * Permet de definir les differentes valeurs du noeud
      * <p>
-     * L'orientation du noeud est à définir lors de la création de celui-ci et les
-     * noeuds connectés doivent êtes ajoutés avec la méthode ajouter_noeud
+     * L'orientation du noeud est a definir lors de la creation de celui-ci et les
+     * noeuds connectes doivent êtes ajoutes avec la methode ajouter_noeud
      * 
      * @param couleur la couleur du noeud
-     * @param x       La coordonée x du noeud
-     * @param y       La coordonée y du noeud
+     * @param x       La coordonee x du noeud
+     * @param y       La coordonee y du noeud
      */
     public void set_valeurs(int couleur, float x, float y) {
         // Verifie que la couleur envoyee correspond bien a une couleur de noeud
@@ -41,9 +41,9 @@ public class Noeud extends Node {
     }
 
     /**
-     * Rajoute un noeud connecté au noeud actuel
+     * Rajoute un noeud connecte au noeud actuel
      * 
-     * @param noeud noeud connecté au noeud actuel
+     * @param noeud noeud connecte au noeud actuel
      */
     public void ajouter_noeud(Noeud noeud) {
         noeuds.add(noeud);
@@ -51,9 +51,9 @@ public class Noeud extends Node {
 
     /**
      * Fonction recursive permettant au robot de visiter et cartographier le
-     * labyrinthe, en ressort dés que le trésor a été trouvé.
+     * labyrinthe, en ressort des que le tresor a ete trouve.
      * <p>
-     * Commence l'exploration à partir du noeud qui est envoyé.
+     * Commence l'exploration a partir du noeud qui est envoye.
      * 
      * @param robot           Le robot parcourrant le labyrinthe
      * @param labyrinthe      Le labyrinthe que le robot visite
@@ -63,24 +63,24 @@ public class Noeud extends Node {
         // Fait avancer le robot jusqu'au noeud
         robot.avancer_au_noeud(this.orientation);
 
-        // découvre le noeud et le complète (couleur, noeuds connectés, coordonées...)
+        // decouvre le noeud et le complete (couleur, noeuds connectes, coordonees...)
         robot.decouvrir(labyrinthe, noeud_precedent, this);
 
         // Si le noeud est un embranchement, explore tous les noeuds qui y sont
-        // connectés jusqu'à trouver le trésor ou avoir visité tous les noeuds
+        // connectes jusqu'a trouver le tresor ou avoir visite tous les noeuds
         if (this.get_couleur() == TypeNoeud.embranchement) {
             for (Noeud noeud : noeuds) {
-                // Vérifie si la branche que le robot est sur le point d'explorer n'a pas déjà
-                // été exploré précédement. Sinon l'explore
+                // Verifie si la branche que le robot est sur le point d'explorer n'a pas deja
+                // ete explore precedement. Sinon l'explore
                 if (labyrinthe.chercher_noeud_commun(this) != noeud.orientation) {
                     System.out.println("parcours d'un chemin, " + noeud.orientation.toString());
                     noeud.visite_noeud(robot, labyrinthe, this);
                 }
-                // Si le trésor a été trouvé, plus besoins d'explorer le reste du labyrinthe
+                // Si le tresor a ete trouve, plus besoins d'explorer le reste du labyrinthe
                 if (labyrinthe.get_noeud_tresor() != null)
                     return;
             }
-            // Si aucun des chemins ne mènent vers le tresor retourne au noeud precedent
+            // Si aucun des chemins ne menent vers le tresor retourne au noeud precedent
             robot.avancer_au_noeud(this.orientation.droite().droite());
         }
         // Si le noeud contient le tresor sort de la phase exploration
@@ -98,15 +98,15 @@ public class Noeud extends Node {
     }
 
     /**
-     * Programme récursif permettant de comparer les coordonées du robot avec celles
-     * des différents noeuds à partir duquel la méthode est appelée
+     * Programme recursif permettant de comparer les coordonees du robot avec celles
+     * des differents noeuds a partir duquel la methode est appelee
      * 
      * @param robot Le robot
      * @return le noeud où le robot se trouve, sinon null
      */
     public Noeud verifier_existence(Robot robot) {
 
-        // Si le noeud vérifié est un cul de sac, alors le robot ne peut pas revenir
+        // Si le noeud verifie est un cul de sac, alors le robot ne peut pas revenir
         // dessus, retourne null
         if (this.get_couleur() == TypeNoeud.cul_de_sac)
             return null;
@@ -114,11 +114,11 @@ public class Noeud extends Node {
         // Si le robot est proche du noeud, cela signifie qu'il est sur le noeud
         if (this.est_proche(robot))
             return this;
-        // Sinon refait la même vérification pour tous les noeuds connectés
+        // Sinon refait la même verification pour tous les noeuds connectes
         else {
             for (Noeud noeud : noeuds) {
                 Noeud temp = noeud.verifier_existence(robot);
-                // Si le noeud a été trouvé, le retourne sans vérifier les autres noeuds
+                // Si le noeud a ete trouve, le retourne sans verifier les autres noeuds
                 if (temp != null)
                     return temp;
             }
@@ -127,37 +127,37 @@ public class Noeud extends Node {
     }
 
     /**
-     * Compare les coordonées du robot avec celles du noeud
+     * Compare les coordonees du robot avec celles du noeud
      * 
      * @param robot Le robot
-     * @return True si le noeud est à moins de "erreur position" mm du robot
+     * @return True si le noeud est a moins de "erreur position" mm du robot
      */
     public boolean est_proche(Robot robot) {
         return ((robot.get_x() - this.get_x()) * (robot.get_x() - this.get_x()) + (robot.get_y() - this.get_y())
                 * (robot.get_y() - this.get_y()) < Robot.get_erreur_position() * Robot.get_erreur_position());
     }
 
-    /** retourne les différents noeuds connectés à ce noeud */
+    /** @return les differents noeuds connectes a ce noeud */
     public ArrayList<Noeud> get_noeuds() {
         return this.noeuds;
     }
 
-    /** retourne la couleur du noeud */
+    /** @return la couleur du noeud */
     public int get_couleur() {
         return couleur;
     }
 
-    /** retourne la coordonée x du noeud */
+    /** @return la coordonee x du noeud */
     public float get_x() {
         return this.x;
     }
 
-    /** retourne la coordonée y du noeud */
+    /** @return la coordonee y du noeud */
     public float get_y() {
         return this.y;
     }
 
-    /** retourne l'orientation pour aller du noeud précédent à ce noeud */
+    /** @return l'orientation pour aller du noeud precedent a ce noeud */
     public Orientation get_orientation() {
         return this.orientation;
     }

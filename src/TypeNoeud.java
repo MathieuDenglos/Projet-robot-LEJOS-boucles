@@ -1,8 +1,7 @@
 import lejos.robotics.Color;
 
+// constantes de couleurs pour les noeuds et la ligne
 public class TypeNoeud {
-
-    // constantes de couleurs pour les noeuds et la ligne
     public static final int tresor = Color.YELLOW;
     public static final int embranchement = Color.BLUE;
     public static final int cul_de_sac = Color.GREEN;

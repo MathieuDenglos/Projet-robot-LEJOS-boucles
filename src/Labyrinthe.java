@@ -6,11 +6,11 @@ import lejos.robotics.pathfinding.Path;
 public class Labyrinthe {
     private Noeud entree, tresor; // entree contient tout le labyrinthe
     private Map<Noeud, Orientation> noeuds_communs = new HashMap<Noeud, Orientation>();
-    // Map contenant les noeuds par lesquels le robot est repassé dessus, ainsi que
-    // l'orientation par laquelle il vient ; évite au robot de réexplorer un bout
+    // Map contenant les noeuds par lesquels le robot est repasse dessus, ainsi que
+    // l'orientation par laquelle il vient ; evite au robot de reexplorer un bout
 
     /**
-     * Permet de résoudre le labyrinthe
+     * Permet de resoudre le labyrinthe
      * 
      * @param robot Le robot qui explore le labyrinthe
      */
@@ -41,12 +41,12 @@ public class Labyrinthe {
     }
 
     /**
-     * Permet de vérifier si le robot a déjà visité une branche du noeud
+     * Permet de verifier si le robot a deja visite une branche du noeud
      * <p>
      * Permet de s'assurer que le robot ne repasse pas sur une même branche
      * 
-     * @param noeud Le noeud à chercher
-     * @return la direction déjà observé sinon null
+     * @param noeud Le noeud a chercher
+     * @return la direction deja observe sinon null
      */
     public Orientation chercher_noeud_commun(Noeud noeud) {
         return noeuds_communs.get(noeud);
@@ -55,7 +55,7 @@ public class Labyrinthe {
     /**
      * Indique que le labyrinthe a une boucle
      * <p>
-     * A appeler lorsque le robot revient sur un embranchement déjà scanné
+     * A appeler lorsque le robot revient sur un embranchement deja scanne
      * 
      * @param noeud       Le noeud sur lequel le robot est revenu
      * @param orientation L'inverse de l'orientation depuis lequel le robot vient
@@ -65,7 +65,7 @@ public class Labyrinthe {
     }
 
     /**
-     * Programme comparant les coordonées du robot avec tous les noeuds du
+     * Programme comparant les coordonees du robot avec tous les noeuds du
      * labyrinthe
      * 
      * @param robot Le robot
@@ -76,9 +76,9 @@ public class Labyrinthe {
     }
 
     /**
-     * Permet de définir le noeud avec le trésor, une fois celui-ci trouvé
+     * Permet de definir le noeud avec le tresor, une fois celui-ci trouve
      * 
-     * @param noeud Le noeud du trésor
+     * @param noeud Le noeud du tresor
      */
     public void set_noeud_tresor(Noeud noeud) {
         this.tresor = noeud;
