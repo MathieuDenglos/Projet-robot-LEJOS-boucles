@@ -19,15 +19,7 @@ public class Robot {
     private int red_avg = 140; // Valeur de la consigne du suiveur de ligne
     private int x = 0; // + NORD - SUD
     private int y = 0; // + EST - OUEST
-    static final private int erreur_position = 2000;
-
-    /**
-     * Sert juste a faire les tests, sera enleve a la version finale
-     */
-    public void test() {
-
-        Button.waitForAnyPress();
-    }
+    static final private int erreur_position = 50;
 
     /**
      * Programme de calibration du robot (calibration du detecteur de couleur pour
@@ -251,7 +243,6 @@ public class Robot {
     }
 
     public void decouvrir(Labyrinthe labyrinthe, Noeud noeud_precedent, Noeud noeud_actuel) {
-        ArrayList<Noeud> temp = new ArrayList<Noeud>();
         Noeud verif = null;
         if (couleur_scannee.getColor() == TypeNoeud.embranchement) {
             verif = labyrinthe.verifier_existence(this);
@@ -263,7 +254,7 @@ public class Robot {
         } else {
             noeud_precedent.addNeighbor(verif);
             noeud_actuel.addNeighbor(noeud_precedent);
-            noeud_actuel.set_valeurs(TypeNoeud.cul_de_sac, temp, (float) this.get_x(), (float) this.get_y());
+            noeud_actuel.set_valeurs(TypeNoeud.cul_de_sac, (float) this.get_x(), (float) this.get_y());
             labyrinthe.ajout_noeud_commun(verif, noeud_actuel.get_orientation().droite().droite());
         }
     }
@@ -341,14 +332,13 @@ public class Robot {
 
             // rajoute les couloirs dans le tableau dans un ordre optimise
             if (a) {
-
-                noeuds.add(new Noeud(orientation));
+                noeud_actuel.ajouter_noeud(new Noeud(orientation));
             }
             if (b) {
-                noeuds.add(new Noeud(orientation.droite()));
+                noeud_actuel.ajouter_noeud(new Noeud(orientation.droite()));
             }
             if (c) {
-                noeuds.add(new Noeud(orientation.gauche()));
+                noeud_actuel.ajouter_noeud(new Noeud(orientation.gauche()));
             }
         }
 
@@ -356,7 +346,7 @@ public class Robot {
         System.out.println("La couleur du noeud est : ");
         afficher(couleur_scannee.getColor());
         System.out.println("Le nombre de chemin est : " + noeuds.size());
-        noeud_actuel.set_valeurs(couleur_scannee.getColor(), noeuds, x, y);
+        noeud_actuel.set_valeurs(couleur_scannee.getColor(), x, y);
     }
 
     /**
@@ -422,5 +412,4 @@ public class Robot {
     static public int get_erreur_position() {
         return erreur_position;
     }
-
 }
