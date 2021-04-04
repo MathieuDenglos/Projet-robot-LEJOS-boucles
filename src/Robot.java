@@ -6,6 +6,8 @@ import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.Motor;
 import lejos.nxt.Button;
 
+// Version Avec Boucle
+
 public class Robot {
 
     // Donnes necessaire au robot
@@ -13,7 +15,9 @@ public class Robot {
     private final ColorSensor capteur_couleur = new ColorSensor(SensorPort.S3);
     private NXTRegulatedMotor moteur_gauche = Motor.B;
     private NXTRegulatedMotor moteur_droite = Motor.A;
-    private final float coefficient_rotation = (float) ((2.0 * 54.0) / (56.0)); // 2*excentricite des roues/D roue
+    private final float diametre_roue = 56f;
+    private final float coefficient_rotation = (float) ((2.0 * 54.0) / (diametre_roue)); // 2*excentricite des roues/D
+                                                                                         // roue
     private final int distance_roue_capteur = 69; // distance entre le centre de rotation et le capteur
     private Color couleur_scannee;
     private int red_avg = 140; // Valeur de la consigne du suiveur de ligne
@@ -67,10 +71,15 @@ public class Robot {
      */
     public void avancer_au_noeud(Orientation direction) {
         this.tourner_vers(direction); // S'oriente dans la bonne direction
-        this.trouver_ligne();
+        this.trouver_ligne(); // Se place sur la ligne
         this.avancer(); // lance le suiveur de ligne
     }
 
+    /**
+     * Permet au robot de tourner jusqu'a ce que le capteur se trouve sur la ligne
+     * noire
+     *
+     */
     public void trouver_ligne() {
         int mesure = capteur_couleur.getColor().getRed();
 
@@ -86,34 +95,49 @@ public class Robot {
         moteur_gauche.stop();
     }
 
+    /**
+     * Permet au robot de s'orienter vers une direction
+     *
+     */
     private void tourner_vers(Orientation direction) {
 
-        // Calcule l'angle entre sa position initiale et la position d'arrivÃ©e
+        // Calcule l'angle entre sa position initiale et la position d'arrivee
         // tourne de l'angle et actualise la direction du robot
         int angle = orientation.difference(direction) * -90;
 
-        // ajoute un dÃ©calage afin de se trouver Ã gauche de la ligne
+        // ajoute un decalage afin de se trouver a gauche de la ligne
         angle -= 11;
+
         tourner(angle);
+
+        // stockage de la nouvelle orientation du robot
         orientation = direction;
     }
 
-    public void tourner(int angle) {
+    /**
+     * Ce programme controle les moteurs afin d'effectuer une rotation sur lui mÃªme
+     * d'un angle precis
+     *
+     */
+    private void tourner(int angle) {
 
-        // dÃ©finit la rotation que chaque moteur doit rÃ©aliser ainsi que son Ã©cart
-        int consigne_gauche = (int) (angle * coefficient_rotation);
-        int consigne_droite = -((int) (angle * coefficient_rotation));
-        float P = -2;
+        // Parametre : Coefficient de proportionalite entre l'ecart et la vitesse des
+        // moteurs
+        float P = -2f;
+
+        // initialisation
         moteur_gauche.resetTachoCount();
         moteur_droite.resetTachoCount();
-        int ecart_gauche = moteur_gauche.getTachoCount() - consigne_gauche;
-        int ecart_droite = moteur_droite.getTachoCount() - consigne_droite;
-
-        // dÃ©finit l'accÃ©lÃ©ration des moteurs
         moteur_gauche.setAcceleration(600);
         moteur_droite.setAcceleration(600);
 
-        // tourne jusqu'Ã avoir fais une rotation du robot de : angle
+        // definit la rotation que chaque moteur doit realiser ainsi que son ecart
+        int consigne_gauche = (int) (angle * coefficient_rotation);
+        int consigne_droite = -((int) (angle * coefficient_rotation));
+        int ecart_gauche = moteur_gauche.getTachoCount() - consigne_gauche;
+        int ecart_droite = moteur_droite.getTachoCount() - consigne_droite;
+
+        // tourne jusqu'a avoir fais une rotation du robot de : angle
         while (ecart_gauche != 0 && ecart_droite != 0) {
             rotation_gauche(limite_vitesse(P * ecart_gauche, 720f));
             rotation_droite(limite_vitesse(P * ecart_droite, 720f));
@@ -121,7 +145,7 @@ public class Robot {
             ecart_droite = (moteur_droite.getTachoCount() - consigne_droite);
         }
 
-        // arrÃªte les moteurs
+        // arrete les moteurs
         moteur_gauche.stop();
         moteur_droite.stop();
     }
@@ -155,14 +179,15 @@ public class Robot {
         }
     }
 
-    int avancer() {
-
-        // initialise les accelerations et fait avancer le robot
+    private void avancer() {
+        // parametres de vitesse et d'acceleration
         int acceleration = 1000;
-        float ecart, speed = 205, P = -0.9f;
-        int distance_parcourue = 0;
-        moteur_gauche.resetTachoCount();
+        float speed = 205, P = -0.9f;
 
+        // initialisation
+        int ecart, distance_parcourue = 0;
+        moteur_gauche.resetTachoCount();
+        moteur_droite.resetTachoCount();
         moteur_gauche.setAcceleration(acceleration);
         moteur_droite.setAcceleration(acceleration);
 
@@ -185,16 +210,22 @@ public class Robot {
 
             // Permet de reguler legerement la direction de rotation (pour toujours se
             // situer entre la ligne noir et le sol blanc)
-            ecart = P * (mesure.getRed() - red_avg);
+            ecart = (int) (P * (mesure.getRed() - red_avg));
             rotation_gauche(speed - ecart);
             rotation_droite(speed + ecart);
         }
+
+        // mesure de la distance parcourue
         distance_parcourue = moteur_gauche.getTachoCount();
 
-        // avance jusqu'a avoir le centre de rotation du robot sur le noeud
-        int consigne = (int) (distance_roue_capteur * (360 / (56.0 * 3.1415))); // 56.0 : diametre des roues
-        ecart = moteur_gauche.getTachoCount() - consigne - distance_parcourue;
+        // Parametre : Coefficient de proportionalite entre la distance restante et la
+        // vitesse des moteurs
         P = -3f;
+
+        // ralenti jusqu'a avoir le centre de rotation du robot sur le noeud
+        int consigne = (int) (distance_roue_capteur * (360 / (diametre_roue * 3.1415))); // 56.0 : diametre des roues
+        ecart = moteur_gauche.getTachoCount() - consigne - distance_parcourue;
+
         while (ecart != 0) {
             ecart = moteur_gauche.getTachoCount() - consigne - distance_parcourue;
             rotation_gauche(limite_vitesse(P * ecart, speed));
@@ -205,9 +236,12 @@ public class Robot {
 
         // stocke la couleur du noeud
         couleur_scannee = mesure;
-        // stocke la distance parcourue en millimetres
-        distance_parcourue = (int) ((int) moteur_gauche.getTachoCount() / (360 / (56.0 * 3.1415))); // 56.0 : diametre
-                                                                                                    // des roues
+
+        // Calcul precis de la distance parcourue en millimetres
+        distance_parcourue = (int) ((int) (moteur_gauche.getTachoCount() + moteur_gauche.getTachoCount()) / 2
+                * (360 / (diametre_roue * 3.1415)));
+
+        // Mise a jour des coordonnees
         switch (orientation) {
         case NORD:
             this.x = this.x + distance_parcourue;
@@ -221,9 +255,8 @@ public class Robot {
         case OUEST:
             this.y = this.y - distance_parcourue;
             break;
-
         }
-        return distance_parcourue;
+        System.out.println("Distance =" + distance_parcourue);
     }
 
     /**
@@ -259,26 +292,35 @@ public class Robot {
         }
     }
 
+    /**
+     * scan le noeud actuel et le complete
+     * 
+     * @param noeud_actuel le noeud a compléter
+     */
     public void scan(Noeud noeud_actuel) {
 
         ArrayList<Noeud> noeuds = new ArrayList<Noeud>();
         if (couleur_scannee.getColor() == TypeNoeud.embranchement) {
-            boolean a = false, b = false, c = false;
+
+            // parametres de vitesse et d'acceleration
+            int P = -3;
+            int vmax = 135;
 
             // cree la consigne pour faire un tour complet
             int consigne_gauche = (int) (360 * coefficient_rotation);
             int consigne_droite = -((int) (360 * coefficient_rotation));
-            int P = -3;
-            int vmax = 135;
+
+            // initialisation
+            boolean a = false, b = false, c = false;
             moteur_gauche.resetTachoCount();
             moteur_droite.resetTachoCount();
             int ecart_gauche = moteur_gauche.getTachoCount() - consigne_gauche;
             int ecart_droite = moteur_droite.getTachoCount() - consigne_droite;
 
-            // divise la rotation en 8 sections de detections (sections de 45°)
+            // divise la rotation en 8 sections de detections (sections de 45Â°)
             int intervalle = consigne_gauche / 8;
 
-            // commence a tourner sur lui-même selon la consigne
+            // commence a tourner sur lui-mÃªme selon la consigne
             rotation_gauche(limite_vitesse(P * ecart_gauche, vmax));
             rotation_droite(limite_vitesse(P * ecart_droite, vmax));
             moteur_gauche.stop();
@@ -286,14 +328,14 @@ public class Robot {
             rotation_gauche(limite_vitesse(P * ecart_gauche, vmax));
             rotation_droite(limite_vitesse(P * ecart_droite, vmax));
 
-            // detection du couloirs d'en face (0°-45°)
+            // detection du couloirs d'en face (0Â°-45Â°)
             while (moteur_gauche.getTachoCount() < intervalle) {
                 if (!a) {
                     a = capteur_couleur.getColor().getColor() == TypeNoeud.ligne;
                 }
             }
 
-            // detection du couloir de gauche (45°-135°)
+            // detection du couloir de gauche (45Â°-135Â°)
             intervalle = 3 * consigne_gauche / 8;
             while (moteur_gauche.getTachoCount() < intervalle) {
                 if (!b) {
@@ -301,7 +343,7 @@ public class Robot {
                 }
             }
 
-            // on saut la detection de la ligne arriere (ligne d'arrivee)
+            // on saute la detection de la ligne arriere (ligne d'arrivee)
             intervalle = 5 * consigne_gauche / 8;
             while (moteur_gauche.getTachoCount() < intervalle) {
 
@@ -397,18 +439,22 @@ public class Robot {
         return -limite;
     }
 
+    /** @return l'orientation du robot */
     public Orientation get_orientation() {
         return this.orientation;
     }
 
+    /** @return la coordonée x du robot */
     public int get_x() {
         return this.x;
     }
 
+    /** @return la coordonée y du robot */
     public int get_y() {
         return this.y;
     }
 
+    /** @return la constante d'erreur de mesure du robot */
     static public int get_erreur_position() {
         return erreur_position;
     }
