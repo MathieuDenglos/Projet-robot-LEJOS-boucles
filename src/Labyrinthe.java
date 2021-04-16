@@ -35,8 +35,8 @@ public class Labyrinthe {
             for (int i = 1; i < path.size(); i++) {
                 robot.avancer_au_noeud(
                         retour.trouver_orientation(path.get(i - 1).x, path.get(i - 1).y, path.get(i).x, path.get(i).y));
-                // Potentielle celebration
             }
+            Robot.celebration();
         }
     }
 

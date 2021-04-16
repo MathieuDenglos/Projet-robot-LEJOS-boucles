@@ -73,7 +73,6 @@ public class Noeud extends Node {
                 // Verifie si la branche que le robot est sur le point d'explorer n'a pas deja
                 // ete explore precedement. Sinon l'explore
                 if (labyrinthe.chercher_noeud_commun(this) != noeud.orientation) {
-                    System.out.println("parcours d'un chemin, " + noeud.orientation.toString());
                     noeud.visite_noeud(robot, labyrinthe, this);
                 }
                 // Si le tresor a ete trouve, plus besoins d'explorer le reste du labyrinthe
@@ -85,13 +84,11 @@ public class Noeud extends Node {
         }
         // Si le noeud contient le tresor sort de la phase exploration
         else if (this.get_couleur() == TypeNoeud.tresor) {
-            System.out.println("tresor recupere, analyse du labyrinthe");
             labyrinthe.set_noeud_tresor(this);
             return;
         }
         // Si le noeud est un cul de sac fait demi tour
         else if (this.get_couleur() == TypeNoeud.cul_de_sac) {
-            System.out.println("cul_de_sac : demi tour");
             robot.avancer_au_noeud(this.orientation.droite().droite());
             return;
         }
